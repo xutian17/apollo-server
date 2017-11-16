@@ -1,3 +1,4 @@
+const _ = require('lodash');
 import * as express from 'express';
 import * as url from 'url';
 import { GraphQLOptions, HttpQueryError, runHttpQuery } from 'apollo-server-core';
@@ -26,14 +27,20 @@ export function graphqlExpress(options: GraphQLOptions | ExpressGraphQLOptionsFu
     throw new Error(`Apollo Server expects exactly one argument, got ${arguments.length}`);
   }
 
-  return (req: express.Request, res: express.Response, next): void => {
+  return (req: express.Request, res: express.Response, next): void | Promise<any> => {
+    var skipRes = res === null;
     runHttpQuery([req, res], {
       method: req.method,
       options: options,
       query: req.method === 'POST' ? req.body : req.query,
     }).then((gqlResponse) => {
+      if (skipRes) {
+        return gqlResponse;
+      }
       res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Content-Length', Buffer.byteLength(gqlResponse, 'utf8'));
+      /* tslint:disable */
+      // res.setHeader('Content-Length', Buffer.byteLength(gqlResponse, 'utf8'));
+      /* tslint:enable */
       res.write(gqlResponse);
       res.end();
     }, (error: HttpQueryError) => {
@@ -41,14 +48,31 @@ export function graphqlExpress(options: GraphQLOptions | ExpressGraphQLOptionsFu
         return next(error);
       }
 
-      if ( error.headers ) {
-        Object.keys(error.headers).forEach((header) => {
-          res.setHeader(header, error.headers[header]);
-        });
+      if (!skipRes) {
+          if ( error.headers ) {
+              Object.keys(error.headers).forEach((header) => {
+                res.setHeader(header, error.headers[header]);
+            });
+          }
+          res.statusCode = error.statusCode;
       }
 
-      res.statusCode = error.statusCode;
-      res.write(error.message);
+      var errorObj;
+      try {
+          var errorObj = JSON.parse(error.message);
+          errorObj.data = null;
+          if (skipRes) {
+            return errorObj;
+          }
+          res.write(JSON.stringify(errorObj));
+      } catch (e) {
+          // fallback
+          if (skipRes) {
+            return error.message;
+          }
+          res.write(error.message);
+      }
+
       res.end();
     });
   };

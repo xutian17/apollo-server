@@ -21,6 +21,7 @@ export interface GraphQLResponse {
   data?: object;
   errors?: Array<GraphQLError & object>;
   extensions?: object;
+  documentAST?: object;
 }
 
 export enum LogAction {
@@ -166,6 +167,7 @@ function doRunQuery(options: QueryOptions): Promise<GraphQLResponse> {
 
             let response: GraphQLResponse = {
                 data: result.data,
+                documentAST: documentAST
             };
 
             if (result.errors) {

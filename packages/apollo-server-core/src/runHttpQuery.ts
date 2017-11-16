@@ -27,7 +27,7 @@ function isQueryOperation(query: DocumentNode, operationName: string) {
   return operationAST.operation === 'query';
 }
 
-export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQueryRequest): Promise<string> {
+export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQueryRequest): Promise<string|ExecutionResult|ExecutionResult[]> {
   let isGetRequest: boolean = false;
   let optionsObject: GraphQLOptions;
 
@@ -142,11 +142,20 @@ export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQu
   if (!isBatch) {
     const gqlResponse = responses[0];
     if (gqlResponse.errors && typeof gqlResponse.data === 'undefined') {
-      throw new HttpQueryError(400, JSON.stringify(gqlResponse), true, {
+      throw new HttpQueryError(200, JSON.stringify(gqlResponse), true, {
         'Content-Type': 'application/json',
       });
     }
+    if (!optionsObject.formatResponse(null, null, true)) {
+        // return JSON.stringify(gqlResponse);
+        return gqlResponse;
+    }
     return JSON.stringify(gqlResponse);
+  }
+
+  if (!optionsObject.formatResponse(null, null, true)) {
+    // return JSON.stringify(responses);
+    return responses;
   }
 
   return JSON.stringify(responses);
