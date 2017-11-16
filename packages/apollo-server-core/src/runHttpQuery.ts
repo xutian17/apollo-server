@@ -128,8 +128,8 @@ export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQu
 
       return runQuery(params);
     } catch (e) {
-      // Populate any HttpQueryError to our handler which should
-      // convert it to Http Error.
+      // Populate any HttpQueryError to our handler which
+      // should convert it to Http Error.
       if ( e.name === 'HttpQueryError' ) {
         return Promise.reject(e);
       }
