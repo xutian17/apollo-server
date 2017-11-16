@@ -76,10 +76,19 @@ export function renderGraphiQL(data: GraphiQLData): string {
       width: 100%;
     }
   </style>
-  <link href="//unpkg.com/graphiql@${GRAPHIQL_VERSION}/graphiql.css" rel="stylesheet" />
+  <link href="/j/graphiql?file=graphiql.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
+
+  <script src="/j/graphiql?file=graphiql.js"></script>
   <script src="//unpkg.com/react@15.6.1/dist/react.min.js"></script>
   <script src="//unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
+  <script src="//npmcdn.com/react-copy-to-clipboard@5.0.0/build/react-copy-to-clipboard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
   <script src="//unpkg.com/graphiql@${GRAPHIQL_VERSION}/graphiql.min.js"></script>
+
   ${usingEditorTheme ?
     `<link href="//cdn.jsdelivr.net/npm/codemirror@5/theme/${editorTheme}.min.css" rel="stylesheet" />`
     : ''}
@@ -139,14 +148,19 @@ export function renderGraphiQL(data: GraphiQLData): string {
       var fetchURL = locationQuery(otherParams, '${endpointURL}');
 
       // Defines a GraphQL fetcher using the fetch API.
-      function graphQLHttpFetcher(graphQLParams) {
+      function graphQLHttpFetcher(graphQLParams, extraHeaders) {
+          var headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ${passHeader}
+          };
+
+          console.log('extraHeaders: ', extraHeaders);
+          headers = _.extend(headers, extraHeaders);
+
           return fetch(fetchURL, {
             method: 'post',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              ${passHeader}
-            },
+            headers: headers,
             body: JSON.stringify(graphQLParams),
             credentials: 'same-origin',
           }).then(function (response) {
