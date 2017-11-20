@@ -29,7 +29,7 @@ export function graphqlExpress(options: GraphQLOptions | ExpressGraphQLOptionsFu
 
   return (req: express.Request, res: express.Response, next): void | Promise<any> => {
     var skipRes = res === null;
-    runHttpQuery([req, res], {
+    return runHttpQuery([req, res], {
       method: req.method,
       options: options,
       query: req.method === 'POST' ? req.body : req.query,
