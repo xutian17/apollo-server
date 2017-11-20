@@ -147,14 +147,12 @@ export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQu
       });
     }
     if (!optionsObject.formatResponse(null, null, true)) {
-        // return JSON.stringify(gqlResponse);
         return gqlResponse;
     }
     return JSON.stringify(gqlResponse);
   }
 
   if (!optionsObject.formatResponse(null, null, true)) {
-    // return JSON.stringify(responses);
     return responses;
   }
 
