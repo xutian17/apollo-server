@@ -1,4 +1,4 @@
-const _ = require('lodash');
+// const _ = require('lodash');
 import * as express from 'express';
 import * as url from 'url';
 import { GraphQLOptions, HttpQueryError, runHttpQuery } from 'apollo-server-core';
@@ -28,7 +28,7 @@ export function graphqlExpress(options: GraphQLOptions | ExpressGraphQLOptionsFu
   }
 
   return (req: express.Request, res: express.Response, next): void | Promise<any> => {
-    var skipRes = res === null;
+    let skipRes = res === null;
     return runHttpQuery([req, res], {
       method: req.method,
       options: options,
@@ -57,9 +57,9 @@ export function graphqlExpress(options: GraphQLOptions | ExpressGraphQLOptionsFu
           res.statusCode = error.statusCode;
       }
 
-      var errorObj;
+    //   var errorObj;
       try {
-          var errorObj = JSON.parse(error.message);
+          let errorObj = JSON.parse(error.message);
           errorObj.data = null;
           if (skipRes) {
             return errorObj;

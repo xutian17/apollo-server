@@ -27,7 +27,8 @@ function isQueryOperation(query: DocumentNode, operationName: string) {
   return operationAST.operation === 'query';
 }
 
-export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQueryRequest): Promise<string|ExecutionResult|ExecutionResult[]> {
+export async function runHttpQuery(handlerArguments: Array<any>,
+    request: HttpQueryRequest): Promise<string|ExecutionResult|ExecutionResult[]> {
   let isGetRequest: boolean = false;
   let optionsObject: GraphQLOptions;
 
@@ -150,7 +151,7 @@ export async function runHttpQuery(handlerArguments: Array<any>, request: HttpQu
     if (!optionsObject.formatResponse(null, null, true)) {
         return gqlResponse;
     }
-    
+
     return JSON.stringify(gqlResponse);
   }
 

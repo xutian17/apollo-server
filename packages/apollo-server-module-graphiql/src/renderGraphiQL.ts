@@ -76,12 +76,13 @@ export function renderGraphiQL(data: GraphiQLData): string {
       width: 100%;
     }
   </style>
-  <link href="/j/graphiql?file=graphiql.css" rel="stylesheet" />
+  <link href="/j/graphouzz?file=graphiql.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
 
   <script src="/j/graphiql?file=graphiql.js"></script>
+
   <script src="//unpkg.com/react@15.6.1/dist/react.min.js"></script>
   <script src="//unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
   <script src="//npmcdn.com/react-copy-to-clipboard@5.0.0/build/react-copy-to-clipboard.js"></script>
@@ -158,12 +159,22 @@ export function renderGraphiQL(data: GraphiQLData): string {
           console.log('extraHeaders: ', extraHeaders);
           headers = _.extend(headers, extraHeaders);
 
-          return fetch(fetchURL, {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(graphQLParams),
-            credentials: 'same-origin',
-          }).then(function (response) {
+          var options = {
+              method: 'post',
+              headers: headers,
+              body: JSON.stringify(graphQLParams),
+              credentials: 'same-origin'
+          };
+
+          if (extraHeaders && extraHeaders['MOBILE-COOKIE']) {
+              let mobileCookies = extraHeaders['MOBILE-COOKIE'];
+              console.log('##### ', mobileCookies);
+              let mobileCookiesArr = mobileCookies.split(';');
+              console.log('))))))) mobildCookiesArr: ', mobileCookiesArr);
+              options.cookies = mobileCookiesArr;
+          }
+
+          return fetch(fetchURL, options).then(function (response) {
             return response.text();
           }).then(function (responseBody) {
             try {

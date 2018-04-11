@@ -167,7 +167,7 @@ function doRunQuery(options: QueryOptions): Promise<GraphQLResponse> {
 
             let response: GraphQLResponse = {
                 data: result.data,
-                documentAST: documentAST
+                documentAST: documentAST,
             };
 
             if (result.errors) {
