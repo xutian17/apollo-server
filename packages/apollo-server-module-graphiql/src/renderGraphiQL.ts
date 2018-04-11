@@ -81,7 +81,7 @@ export function renderGraphiQL(data: GraphiQLData): string {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
 
-  <script src="/j/graphiql?file=graphiql.js"></script>
+  <script src="/j/graphouzz?file=graphiql.js"></script>
 
   <script src="//unpkg.com/react@15.6.1/dist/react.min.js"></script>
   <script src="//unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
