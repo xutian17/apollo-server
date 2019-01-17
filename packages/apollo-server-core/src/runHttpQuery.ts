@@ -27,16 +27,13 @@ function isQueryOperation(query: DocumentNode, operationName: string) {
   return operationAST.operation === 'query';
 }
 
-export async function runHttpQuery(handlerArguments: Array<any>,
+export function runHttpQuery(handlerArguments: Array<any>,
     request: HttpQueryRequest): Promise<string|ExecutionResult|ExecutionResult[]> {
   let isGetRequest: boolean = false;
-  let optionsObject: GraphQLOptions;
 
-  try {
-    optionsObject = await resolveGraphqlOptions(request.options, ...handlerArguments);
-  } catch (e) {
-    throw new HttpQueryError(500, e.message);
-  }
+  // Graphouzz optimization for node v6
+  let optionsObject: GraphQLOptions = <GraphQLOptions> request.options;
+
   const formatErrorFn = optionsObject.formatError || formatError;
   let requestPayload;
 
@@ -138,26 +135,27 @@ export async function runHttpQuery(handlerArguments: Array<any>,
       return Promise.resolve({ errors: [formatErrorFn(e)] });
     }
   });
-  const responses = await Promise.all(requests);
+  
+  return Promise.all(requests).then(responses => {
+    if (!isBatch) {
+      const gqlResponse = responses[0];
+      if (gqlResponse.errors && typeof gqlResponse.data === 'undefined') {
+        throw new HttpQueryError(200, JSON.stringify(gqlResponse), true, {
+          'Content-Type': 'application/json',
+        });
+      }
 
-  if (!isBatch) {
-    const gqlResponse = responses[0];
-    if (gqlResponse.errors && typeof gqlResponse.data === 'undefined') {
-      throw new HttpQueryError(200, JSON.stringify(gqlResponse), true, {
-        'Content-Type': 'application/json',
-      });
+      if (!optionsObject.formatResponse(null, null, true)) {
+          return gqlResponse;
+      }
+
+      return JSON.stringify(gqlResponse);
     }
 
     if (!optionsObject.formatResponse(null, null, true)) {
-        return gqlResponse;
+      return responses;
     }
 
-    return JSON.stringify(gqlResponse);
-  }
-
-  if (!optionsObject.formatResponse(null, null, true)) {
-    return responses;
-  }
-
-  return JSON.stringify(responses);
+    return JSON.stringify(responses);
+  });
 }
